@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using shoptask.Data;
 using shoptask.Models;
 using System.Reflection.Metadata.Ecma335;
 
@@ -7,7 +9,19 @@ namespace shoptask.Controllers
     public class DashBoardController : Controller
     {
         private static List<Product> _products = new List<Product>();
-        private static List<Blog> _blog = new List<Blog>();
+        private static List<Company> _company = new List<Company>();
+        private static List<Blog> _blogs = new List<Blog>();
+        private static List<Typeb> _types = new List<Typeb>();
+        private readonly ApplicationDbContext _db;
+        public DashBoardController(ApplicationDbContext db)
+        {
+            _company.Add(new Company { Id = 1, Name = "Niki" });
+            _company.Add(new Company { Id = 2, Name = "Adidas" });
+            _types.Add(new Typeb { Id = 1, Name = "comedy" });
+            _types.Add(new Typeb { Id = 2, Name = "drama" });
+            _types.Add(new Typeb { Id = 3, Name = "Action" });
+            _db = db;
+        }
         public IActionResult Index()
         {
             return View();
@@ -19,50 +33,43 @@ namespace shoptask.Controllers
         [HttpPost]
         public IActionResult AddProduct(Product product)
         {
-            int id;
-            if (_products.Count == 0)
-            {
-                id = 1;
-            }
-            else
-            {
-                id = _products.Max(x => x.Id) + 1;
-            }
-            product.Id = id;
-            _products.Add(product);
+           _db.products.Add(product);
+           _db.SaveChanges();
             return RedirectToAction("Index");
         }
         public IActionResult ViewProduct()
         {
-
-            return View(_products);
+            var product = _db.products.Include(p => p.company).ToList();
+            return View(product);
 
         }
         public IActionResult Delete(int id)
         {
-            Product product = _products.FirstOrDefault(x => x.Id == id);
+            Product? product = _db.products.FirstOrDefault(x => x.Id == id);
 
-            _products.Remove(product);
+            _db.products.Remove(product);
+            _db.SaveChanges();
 
             return RedirectToAction("ViewProduct");
         }
         public IActionResult Edite(int id)
         {
-            Product product = _products.FirstOrDefault(x => x.Id == id);
+            Product product = _db.products.FirstOrDefault(x => x.Id == id);
 
             return View(product);
         }
         [HttpPost]
         public IActionResult Edite(Product product)
         {
-            Product temp = _products.SingleOrDefault(c => c.Id == product.Id);
+            Product temp = _db.products.SingleOrDefault(c => c.Id == product.Id);
             temp.Name = product.Name;
             temp.Description = product.Description;
             temp.Price = product.Price;
             temp.EnableSize = product.EnableSize;
             temp.Quantity = product.Quantity;
-            temp.company.Id = product.company.Id;
-
+            temp.companyID = product.companyID;
+            _db.products.Update(temp);
+            _db.SaveChanges();
             return RedirectToAction("ViewProduct");
         }
         public IActionResult AddBlog()
@@ -72,45 +79,40 @@ namespace shoptask.Controllers
         [HttpPost]
         public IActionResult AddBlog(Blog blog)
         {
-            int id = 0;
-            if (_blog.Count == 0)
-            {
-                id = 1;
-            }
-            else
-            {
-                id = _blog.Max(x => x.Id) + 1;
-            }
-            blog.Id = id;
-            _blog.Add(blog);
+            _db.blogs.Add(blog);
+            _db.SaveChanges();
             return RedirectToAction("Index");
         }
         public IActionResult ViewBlog()
         {
-            return View(_blog);
+            var blog = _db.blogs.Include(p=>p.type).ToList();
+            return View(blog);
         }
         public IActionResult DeleteBlog(int id)
         {
-            Blog blog = _blog.FirstOrDefault(x => x.Id == id);
-            _blog.Remove(blog);
+            Blog blog = _db.blogs.FirstOrDefault(x => x.Id == id);
+            _db.blogs.Remove(blog);
+            _db.SaveChanges();
             return RedirectToAction("ViewBlog");
 
         }
         public IActionResult EditBlog(int id)
         {
-            Blog blog = _blog.FirstOrDefault(y => y.Id == id);
+            Blog blog = _db.blogs.FirstOrDefault(y => y.Id == id);
 
             return View(blog);
         }
         [HttpPost]
         public IActionResult EditBlog(Blog blog)
         {
-            Blog pl=_blog.SingleOrDefault(c=>c.Id == blog.Id);
+            Blog pl=_db.blogs.SingleOrDefault(c=>c.Id == blog.Id);
             pl.Name = blog.Name;
             pl.Price = blog.Price;
             pl.Description= blog.Description;
             pl.Quantity = blog.Quantity;
-            pl.type.Id=blog.type.Id;
+            pl.typeID = blog.typeID;
+            _db.blogs.Update(pl);
+            _db.SaveChanges();
 
             return RedirectToAction("ViewBlog");
         }

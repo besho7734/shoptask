@@ -2,7 +2,7 @@
 
 namespace shoptask.Models
 {
-    public class Company
+    public class Typeb
     {
         [Required]
         public string Name { get; set; }

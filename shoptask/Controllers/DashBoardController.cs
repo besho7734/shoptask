@@ -33,6 +33,10 @@ namespace shoptask.Controllers
         [HttpPost]
         public IActionResult AddProduct(Product product)
         {
+            if (!ModelState.IsValid)
+            {
+                return View(product);
+            }
            _db.products.Add(product);
            _db.SaveChanges();
             return RedirectToAction("Index");
@@ -79,6 +83,10 @@ namespace shoptask.Controllers
         [HttpPost]
         public IActionResult AddBlog(Blog blog)
         {
+            if (!ModelState.IsValid)
+            {
+                return View("AddBlog");
+            }
             _db.blogs.Add(blog);
             _db.SaveChanges();
             return RedirectToAction("Index");
@@ -105,6 +113,10 @@ namespace shoptask.Controllers
         [HttpPost]
         public IActionResult EditBlog(Blog blog)
         {
+            if (!ModelState.IsValid)
+            {
+                return View("EditBlog");
+            }
             Blog pl=_db.blogs.SingleOrDefault(c=>c.Id == blog.Id);
             pl.Name = blog.Name;
             pl.Price = blog.Price;

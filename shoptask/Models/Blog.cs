@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using shoptask.Util;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace shoptask.Models
@@ -6,12 +7,20 @@ namespace shoptask.Models
     public class Blog
     {
         [Key]
-        public int Id { get; set; }
         [Required]
+        public int Id { get; set; }
+        [Required(ErrorMessage ="you must enter the name of blog")]
+
         public string Name { get; set; }
+        [Required]
         public string Description { get; set; }
+        [Required]
         public int Quantity { get; set; }
+        [Required]
+        [Range(1000,10000)]
+        [MaxPriceForType(4000)]
         public float Price { get; set; }
+        [Required]
         public int typeID { get; set; }
         [ForeignKey("typeID")]
         public  Typeb type { get; set; }
